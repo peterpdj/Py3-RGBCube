@@ -7,6 +7,9 @@ quit = False
 
 anode = [0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80]
 class Buffer:
+    """
+    This buffer is used to fill one frame of the animation on the cube.
+    """
 	def __init__(self):
 		self.byte_red0 = bytearray(64)
 		self.byte_blue0 = bytearray(64)

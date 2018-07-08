@@ -6,7 +6,12 @@ import cubedriver
 
 
 class AnimationRunner:
-	def __init__(self, anim):
+    """
+    This class name says it all. This is running the animation file and uses
+    cubedriver to shift the registers via SPI.
+    A double buffer is used.
+    """
+    def __init__(self, anim):
 		self.anim = anim
 
 	def run(self):
@@ -29,6 +34,9 @@ class AnimationRunner:
 
 
 class Animation:
+    """
+    This class is not used at this moment.
+    """
 	def __init__(self):
 		pass
 
@@ -40,6 +48,9 @@ class Animation:
 
 
 class Position:
+    """
+    This class is used by the animation file.
+    """
 	def __init__(self, x = 0, y = 0, z = 0):
 		self.x = x
 		self.y = y
@@ -47,6 +58,9 @@ class Position:
 
 
 class Color:
+    """
+    This class is used by the animation file.
+    """
 	def __init__(self, r = 0, g = 0, b = 0):
 		self.r = r
 		self.g = g
@@ -54,6 +68,10 @@ class Color:
 
 
 def runAnimation(anim):
+    """
+    This class runs the function 'run' of class Animationrunner. Besides that
+    is uses threading for running the cubedriver in a loop.
+    """
 	driver_thread = threading.Thread(target=cubedriver.mainloop, args=())
 	driver_thread.start()
 

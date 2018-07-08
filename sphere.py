@@ -8,6 +8,10 @@ import math
 
 
 class MyFirstAnimation(cubeanim.Animation):
+    """
+    Class defining properties for the Sphere animation.
+    Starting with the color pattern.
+    """
 	colors = (
 		Color( 0,  0,  0),
 		Color(15,  0,  0),
@@ -28,6 +32,10 @@ class MyFirstAnimation(cubeanim.Animation):
 	)
 
 	def draw(self, buf, t):
+        """
+        This function combines the colors and position of the colors and puts
+        them into buf.LED(pos, color)
+        """
 		pos = Position()
 		for x in range(8):
 			pos.x = x
@@ -49,6 +57,9 @@ class MyFirstAnimation(cubeanim.Animation):
 
 
 if __name__ == '__main__':
+    """
+    main function calling the Sphere animation class 'MyFirstAnimation'.
+    """
 	anim = MyFirstAnimation()
 	cubeanim.runAnimation(anim)
 
