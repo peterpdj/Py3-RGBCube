@@ -2,36 +2,16 @@
 
 import time
 import cubedriver
-
+import numpy
 
 class Frame:
-	"""
-	This buffer is used to fill one frame of the animation on the cube.
-	"""
-	BLUE_OFFSET = 0
-	GREEN_OFFSET = 64
-	RED_OFFSET = 128
-
-	MEM_SIZE = 3 * 64
-
 	def __init__(self):
-		self.mem = bytearray(self.MEM_SIZE)
+		self.data = numpy.zeros((8,8,8,3))
 
-	def LED(self, pos, color):
-		wholebyte = (pos.x*64)+(pos.y*8)+pos.z
-		whichbyte = int((wholebyte) >> 3)
-		posInByte = wholebyte-(8*whichbyte)
-		self.mem[self.BLUE_OFFSET + whichbyte] |= self.bitRead(color.b,0) << posInByte
-		self.mem[self.GREEN_OFFSET + whichbyte] |= self.bitRead(color.g,0) << posInByte
-		self.mem[self.RED_OFFSET + whichbyte] |= self.bitRead(color.r,0) << posInByte
-
-	@staticmethod
-	def bitWrite(i, bitnr, value):
-		return i | (1 << bitnr) if value else i & (1<<bitnr)
-
-	@staticmethod
-	def bitRead(i, bitnr):
-		return (i >> (bitnr))&1
+	def set(self, pos, color):
+		self.data[pos.x, pos.y, pos.z, 0] = color.r
+		self.data[pos.x, pos.y, pos.z, 1] = color.g
+		self.data[pos.x, pos.y, pos.z, 2] = color.b
 
 
 class AnimationRunner:
@@ -53,7 +33,7 @@ class AnimationRunner:
 			t = time.time() - t0
 			frame = Frame()
 			self.anim.draw(frame, t)
-			self.driver.fill(frame.mem)
+			self.driver.fill(frame)
 			time.sleep(0.01)
 			f += 1
 			if f == 1000:
