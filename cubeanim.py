@@ -4,6 +4,36 @@ import time
 import cubedriver
 
 
+class Frame:
+	"""
+	This buffer is used to fill one frame of the animation on the cube.
+	"""
+	BLUE_OFFSET = 0
+	GREEN_OFFSET = 64
+	RED_OFFSET = 128
+
+	MEM_SIZE = 3 * 64
+
+	def __init__(self):
+		self.mem = bytearray(self.MEM_SIZE)
+
+	def LED(self, pos, color):
+		wholebyte = (pos.x*64)+(pos.y*8)+pos.z
+		whichbyte = int((wholebyte) >> 3)
+		posInByte = wholebyte-(8*whichbyte)
+		self.mem[self.BLUE_OFFSET + whichbyte] |= self.bitRead(color.b,0) << posInByte
+		self.mem[self.GREEN_OFFSET + whichbyte] |= self.bitRead(color.g,0) << posInByte
+		self.mem[self.RED_OFFSET + whichbyte] |= self.bitRead(color.r,0) << posInByte
+
+	@staticmethod
+	def bitWrite(i, bitnr, value):
+		return i | (1 << bitnr) if value else i & (1<<bitnr)
+
+	@staticmethod
+	def bitRead(i, bitnr):
+		return (i >> (bitnr))&1
+
+
 class AnimationRunner:
 	"""
 	This class name says it all. This is running the animation file and uses
@@ -21,9 +51,9 @@ class AnimationRunner:
 		self.anim.start()
 		while True:
 			t = time.time() - t0
-			frame = self.driver.make_frame()
+			frame = Frame()
 			self.anim.draw(frame, t)
-			self.driver.fill(frame)
+			self.driver.fill(frame.mem)
 			time.sleep(0.01)
 			f += 1
 			if f == 1000:
