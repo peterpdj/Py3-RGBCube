@@ -38,7 +38,7 @@ class Driver:
 					#time.sleep(0.00001)
 				bb_timeslot = (bb_timeslot + 1) % bam_bits
 				fr += 1
-				if fr == 400:
+				if fr == 2000:
 					t = time.time() - t0
 					fps = fr / (t - tf0)
 					print('Driver FPS', fps / bam_bits)

@@ -3,6 +3,8 @@
 import time
 import cubedriver
 import numpy
+import math
+
 
 class Frame:
 	def __init__(self):
@@ -36,7 +38,7 @@ class AnimationRunner:
 			self.driver.fill(frame)
 			time.sleep(0.01)
 			f += 1
-			if f == 1000:
+			if f == 100:
 				fps = f / (t - tf0)
 				print('Animation FPS', fps)
 				f = 0
@@ -65,6 +67,17 @@ class Position:
 		self.x = x
 		self.y = y
 		self.z = z
+
+	def minus(self, pos):
+		return Position(self.x - pos.x, self.y - pos.y, self.z - pos.z)
+
+	def distance(self, pos):
+		diff = self.minus(pos)
+		return math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z)
+
+	def normalize(self):
+		return Position((self.x - 3.5) / 3.5, ((self.y - 3.5) / 3.5), (self.z - 3.5) / 3.5)
+
 
 
 class Color:
