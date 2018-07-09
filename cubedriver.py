@@ -78,8 +78,11 @@ class Driver:
 
 	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
 		r = int((r + 0.05) * self.bam_bits)
+		r = min(self.bam_bits, max(0, r))
 		g = int((g + 0.05) * self.bam_bits)
+		g = min(self.bam_bits, max(0, g))
 		b = int((b + 0.05) * self.bam_bits)
+		b = min(self.bam_bits, max(0, b))
 		for bb_timeslot in range(self.bam_bits):
 			bam_offset = bb_timeslot * self.MEM_SIZE
 			buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
@@ -99,32 +102,4 @@ BAM_BITS = {
 
 def get_bam_value(bam_bits, timeslot, val):
 	return BAM_BITS[bam_bits][val][timeslot]
-
-class FrameOld:
-	"""
-	This buffer is used to fill one frame of the animation on the cube.
-	"""
-	BLUE_OFFSET = 0
-	GREEN_OFFSET = 64
-	RED_OFFSET = 128
-
-	MEM_SIZE = 3 * 64
-
-	def __init__(self):
-		self.mem = bytearray(self.MEM_SIZE)
-
-	def set(self, pos, color):
-		wholebyte = (pos.x*64)+(pos.y*8)+pos.z
-		whichbyte = int((wholebyte) >> 3)
-		posInByte = wholebyte-(8*whichbyte)
-		self.mem[self.BLUE_OFFSET + whichbyte] |= self.bitRead(color.b,0) << posInByte
-		self.mem[self.GREEN_OFFSET + whichbyte] |= self.bitRead(color.g,0) << posInByte
-		self.mem[self.RED_OFFSET + whichbyte] |= self.bitRead(color.r,0) << posInByte
-
-	@staticmethod
-	def bitWrite(i, bitnr, value):
-		return i | (1 << bitnr) if value else i & (1<<bitnr)
-
-def bitRead(i, bitnr):
-	return (i >> (bitnr))&1
 
