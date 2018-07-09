@@ -8,9 +8,9 @@ import spidev
 
 class Driver:
 	MEM_SIZE = 3 * 64
-	BLUE_OFFSET = 0
+	RED_OFFSET = 0
 	GREEN_OFFSET = 64
-	RED_OFFSET = 128
+	BLUE_OFFSET = 128
 
 	def __init__(self, bam_bits = 4):
 		self.bam_bits = bam_bits

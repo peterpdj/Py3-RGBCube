@@ -11,9 +11,9 @@ class Frame:
 		self.data = numpy.zeros((8,8,8,3))
 
 	def set(self, pos, color):
-		self.data[pos.x, pos.y, pos.z, 0] = color.r
+		self.data[pos.x, pos.y, pos.z, 0] = color.b
 		self.data[pos.x, pos.y, pos.z, 1] = color.g
-		self.data[pos.x, pos.y, pos.z, 2] = color.b
+		self.data[pos.x, pos.y, pos.z, 2] = color.r
 
 
 class AnimationRunner:
