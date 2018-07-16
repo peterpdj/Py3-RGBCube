@@ -90,12 +90,12 @@ class Color:
 		self.b = b
 
 
-def runAnimation(anim):
+def runAnimation(anim, bb):
 	"""
 	This class runs the function 'run' of class Animationrunner. Besides that
 	is uses threading for running the cubedriver in a loop.
 	"""
-	driver = cubedriver.Driver()
+	driver = cubedriver.Driver(bam_bits=bb)
 	driver.run()
 
 	try:

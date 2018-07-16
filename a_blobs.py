@@ -30,5 +30,5 @@ class BlobsAnimation(cubeanim.Animation):
 
 if __name__ == '__main__':
 	anim = BlobsAnimation()
-	cubeanim.runAnimation(anim)
+	cubeanim.runAnimation(anim, bb=4)
 

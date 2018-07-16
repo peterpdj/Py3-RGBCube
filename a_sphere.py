@@ -51,5 +51,5 @@ class MyFirstAnimation(cubeanim.Animation):
 
 if __name__ == '__main__':
 	anim = MyFirstAnimation()
-	cubeanim.runAnimation(anim)
+	cubeanim.runAnimation(anim, bb=2)
 

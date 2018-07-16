@@ -6,13 +6,13 @@ import time
 import spidev
 
 
-class Driver:
+class Driver():
 	MEM_SIZE = 3 * 64
 	RED_OFFSET = 0
 	GREEN_OFFSET = 64
 	BLUE_OFFSET = 128
 
-	def __init__(self, bam_bits = 4):
+	def __init__(self, bam_bits):
 		self.bam_bits = bam_bits
 		self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
 		self.sp = None
@@ -91,15 +91,31 @@ class Driver:
 
 
 BAM_BITS = {
-	4: (
-		(0, 0, 0, 0),
-		(0, 0, 1, 0),
-		(1, 0, 1, 0),
-		(1, 0, 1, 1),
-		(1, 1, 1, 1),
-	)
+    2: (
+        (0, 0),
+        (1, 0),
+        (1, 1),
+    ),
+    4: (
+        (0, 0, 0, 0),
+        (0, 0, 1, 0),
+        (1, 0, 1, 0),
+        (1, 1, 1, 0),
+        (1, 1, 1, 1),
+    ),
+    8: (
+        (0, 0, 0, 0, 0, 0, 0, 0),
+        (0, 0, 0, 0, 0, 0, 0, 1),
+        (0, 0, 1, 0, 0, 0, 1, 0),
+        (0, 1, 0, 1, 0, 1, 0, 0),
+        (1, 0, 1, 0, 0, 1, 0, 1),
+        (1, 0, 1, 1, 0, 1, 0, 1),
+        (1, 0, 1, 0, 1, 1, 1, 0),
+        (1, 1, 0, 1, 1, 1, 1, 0),
+        (1, 1, 1, 1, 1, 1, 1, 1),
+    )
 }
 
 def get_bam_value(bam_bits, timeslot, val):
-	return BAM_BITS[bam_bits][val][timeslot]
+    return BAM_BITS[bam_bits][val][timeslot]
 

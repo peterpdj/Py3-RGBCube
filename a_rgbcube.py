@@ -29,5 +29,5 @@ class RgbCubeAnimation(cubeanim.Animation):
 
 if __name__ == '__main__':
 	anim = RgbCubeAnimation()
-	cubeanim.runAnimation(anim)
+	cubeanim.runAnimation(anim,bb=8)
 
