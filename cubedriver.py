@@ -35,10 +35,13 @@ class Driver():
 			while not quit:
 				bam_offset = bb_timeslot * self.MEM_SIZE
 				for i in range(0, 64, 8):
-					self._fill_buf(i >> 3, shared_buf, buf, bam_bits)
 					red_i = bam_offset + Driver.RED_OFFSET + i
 					green_i = bam_offset + Driver.GREEN_OFFSET + i
 					blue_i = bam_offset + Driver.BLUE_OFFSET + i
+					buf[red_i:red_i+8] = (0, 0, 0, 0, 0, 0, 0, 0)
+					buf[green_i:green_i+8] = (0, 0, 0, 0, 0, 0, 0, 0)
+					buf[blue_i:blue_i+8] = (0, 0, 0, 0, 0, 0, 0, 0)
+					self._fill_buf(i >> 3, shared_buf, buf, bam_bits)
 					spi.xfer(list(buf[red_i:red_i+8]) + list(buf[green_i:green_i+8]) + list(buf[blue_i:blue_i+8]) + list([1 << (i >> 3)]))
 				bb_timeslot = (bb_timeslot + 1) % bam_bits
 				fr += 1
