@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import time
-#import cubedriver
-import virtualdriver
+import cubedriver
+#import virtualdriver
 import numpy
 import math
 
@@ -101,8 +101,8 @@ def runAnimation(anim, bb):
 	This class runs the function 'run' of class Animationrunner. Besides that
 	is uses threading for running the cubedriver in a loop.
 	"""
-	#driver = cubedriver.Driver(bam_bits=bb)
-	driver = virtualdriver.Driver(bam_bits=bb)
+	driver = cubedriver.Driver(bam_bits=bb)
+	#driver = virtualdriver.Driver(bam_bits=bb)
 	driver.run()
 
 	try:
