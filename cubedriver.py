@@ -15,7 +15,6 @@ class Driver():
 
 	def __init__(self, bam_bits):
 		self.bam_bits = bam_bits
-		#self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
 		self.buf = RawArray('B', Driver.SHARED_BUF_SIZE)
 		self.sp = None
 		self.quit = RawValue('B', 0)
@@ -33,19 +32,18 @@ class Driver():
 			buf = bytearray(self.MEM_SIZE * bam_bits)
 			slice_versions = bytearray(8)
 			while not quit:
-				bam_offset = bb_timeslot * self.MEM_SIZE
 				for i in range(0, 64, 8):
-					red_i = bam_offset + Driver.RED_OFFSET + i
-					green_i = bam_offset + Driver.GREEN_OFFSET + i
-					blue_i = bam_offset + Driver.BLUE_OFFSET + i
+					red_i = Driver.RED_OFFSET + i
+					green_i = Driver.GREEN_OFFSET + i
+					blue_i = Driver.BLUE_OFFSET + i
 					buf[red_i:red_i+8] = (0, 0, 0, 0, 0, 0, 0, 0)
 					buf[green_i:green_i+8] = (0, 0, 0, 0, 0, 0, 0, 0)
 					buf[blue_i:blue_i+8] = (0, 0, 0, 0, 0, 0, 0, 0)
-					self._fill_buf(i >> 3, shared_buf, buf, bam_bits)
+					self._fill_buf(i >> 3, shared_buf, buf, bam_bits, bb_timeslot)
 					spi.xfer(list(buf[red_i:red_i+8]) + list(buf[green_i:green_i+8]) + list(buf[blue_i:blue_i+8]) + list([1 << (i >> 3)]))
 				bb_timeslot = (bb_timeslot + 1) % bam_bits
 				fr += 1
-				if fr == 2000:
+				if fr == 200:
 					t = time.time() - t0
 					fps = fr / (t - tf0)
 					print('Driver FPS', fps / bam_bits)
@@ -59,7 +57,7 @@ class Driver():
 		self.buf[:] = frame.data
 
 	@classmethod
-	def _fill_buf(self, slice_nr, data, dest_buf, bam_bits):
+	def _fill_buf(self, slice_nr, data, dest_buf, bam_bits, bb_timeslot):
 		#for x in range(8):
 		if True:
 			x = slice_nr
@@ -72,7 +70,7 @@ class Driver():
 					redValue = ((data[idx + 2] + 1) * bam_bits) >> 8
 					greenValue = ((data[idx + 1] + 1) * bam_bits) >> 8
 					blueValue = ((data[idx + 0] + 1) * bam_bits) >> 8
-					self._setBits(dest_buf, redValue, greenValue, blueValue, whichbyte, posInByte, bam_bits)
+					self._setBits(dest_buf, redValue, greenValue, blueValue, whichbyte, posInByte, bam_bits, bb_timeslot)
 
 	def run(self):
 		if self.sp is None:
@@ -88,14 +86,12 @@ class Driver():
 			self.sp = None
 
 	@classmethod
-	def _setBits(self, buf, r, g, b, whichbyte, posInByte, bam_bits):
+	def _setBits(self, buf, r, g, b, whichbyte, posInByte, bam_bits, bb_timeslot):
 		bam_lookup = BAM_BITS[bam_bits]
-		for bb_timeslot in range(bam_bits):
-			bam_offset = bb_timeslot * self.MEM_SIZE
-			byte_offset = bam_offset + whichbyte
-			buf[byte_offset + self.RED_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, r) << posInByte
-			buf[byte_offset + self.GREEN_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, g) << posInByte
-			buf[byte_offset + self.BLUE_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, b) << posInByte
+		byte_offset = whichbyte
+		buf[byte_offset + self.RED_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, r) << posInByte
+		buf[byte_offset + self.GREEN_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, g) << posInByte
+		buf[byte_offset + self.BLUE_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, b) << posInByte
 
 	@classmethod
 	def _get_bam_value(self, bam_lookup, timeslot, val):
