@@ -7,7 +7,7 @@ import spidev
 
 
 class Driver():
-	MEM_SIZE = 3 * 64
+	MEM_SIZE = 3 * 64 * 8
 	RED_OFFSET = 0
 	GREEN_OFFSET = 64
 	BLUE_OFFSET = 128
@@ -15,12 +15,13 @@ class Driver():
 	def __init__(self, bam_bits):
 		self.bam_bits = bam_bits
 		self.bam_lookup = BAM_BITS[self.bam_bits]
-		self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
+		#self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
+		self.buf = RawArray('B', Driver.MEM_SIZE)
 		self.sp = None
 		self.quit = RawValue('B', 0)
 
 	@classmethod
-	def _mainloop(self, buf, quit, bam_bits):
+	def _mainloop(self, shared_buf, quit, bam_bits):
 		t0 = time.time()
 		fr = 0
 		tf0 = 0
@@ -31,6 +32,7 @@ class Driver():
 		try:
 			while not quit:
 				bam_offset = bb_timeslot * self.MEM_SIZE
+				buf = self._fill_buf(shared_buf)
 				for i in range(0, 64, 8):
 					red_i = bam_offset + Driver.RED_OFFSET + i
 					green_i = bam_offset + Driver.GREEN_OFFSET + i
@@ -50,8 +52,10 @@ class Driver():
 		spi.xfer2([0] * 25)
 
 	def fill(self, frame):
-		buf = bytearray(self.MEM_SIZE * self.bam_bits)
-		data = frame.data
+		self.buf[:] = buf
+
+	def _fill_buf(self, data):
+		buf = bytearray(3 * 64 * self.bam_bits)
 		for x in range(8):
 			for y in range(8):
 				for z in range(8):
@@ -63,7 +67,7 @@ class Driver():
 					greenValue = ((data[idx + 1] + 1) * self.bam_bits) >> 8
 					blueValue = ((data[idx + 0] + 1) * self.bam_bits) >> 8
 					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte)
-		self.buf[:] = buf
+		return buf
 
 	def run(self):
 		if self.sp is None:
