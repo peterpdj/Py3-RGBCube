@@ -57,10 +57,10 @@ class Driver():
 					wholebyte = (x*64)+(y*8)+z
 					whichbyte = int((wholebyte) >> 3)
 					posInByte = wholebyte-(8*whichbyte)
-					idx = 64 * x + 8 * y + z
-					redValue = ((data[idx + 0] + 1) * self.bam_bits) >> 8
-					greenValue = ((data[idx + 1] + 1) * self.bam_bits) >> 8
-					blueValue = ((data[idx + 2] + 1) * self.bam_bits) >> 8
+					idx = wholebyte
+					redValue = ((int(data[idx + 2]) + 1) * self.bam_bits) >> 8
+					greenValue = ((int(data[idx + 1]) + 1) * self.bam_bits) >> 8
+					blueValue = ((int(data[idx + 0]) + 1) * self.bam_bits) >> 8
 					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte)
 		self.buf[:] = buf
 
