@@ -7,7 +7,8 @@ import spidev
 
 
 class Driver():
-	MEM_SIZE = 3 * 64 * 8
+	MEM_SIZE = 3 * 64
+	SHARED_BUF_SIZE = 8 * 8 * 8 * 3
 	RED_OFFSET = 0
 	GREEN_OFFSET = 64
 	BLUE_OFFSET = 128
@@ -15,7 +16,7 @@ class Driver():
 	def __init__(self, bam_bits):
 		self.bam_bits = bam_bits
 		#self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
-		self.buf = RawArray('B', Driver.MEM_SIZE)
+		self.buf = RawArray('B', Driver.SHARED_BUF_SIZE)
 		self.sp = None
 		self.quit = RawValue('B', 0)
 
@@ -54,7 +55,7 @@ class Driver():
 
 	@classmethod
 	def _fill_buf(self, data, bam_bits):
-		buf = bytearray(3 * 64 * bam_bits)
+		buf = bytearray(self.MEM_SIZE * bam_bits)
 		for x in range(8):
 			for y in range(8):
 				for z in range(8):
