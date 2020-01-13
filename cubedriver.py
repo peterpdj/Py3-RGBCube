@@ -53,7 +53,8 @@ class Driver():
 	def fill(self, frame):
 		self.buf[:] = frame.data
 
-	def _fill_buf(self, data):
+	@classmethod
+	def _fill_buf(data):
 		buf = bytearray(3 * 64 * self.bam_bits)
 		for x in range(8):
 			for y in range(8):
