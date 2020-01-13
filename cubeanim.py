@@ -16,13 +16,10 @@ class Frame:
 		return (x * 64 + y * 8 + z) * 3
 
 	def set(self, pos, color):
-		self.data[pos.x, pos.y, pos.z, 0] = color.b
-		self.data[pos.x, pos.y, pos.z, 1] = color.g
-		self.data[pos.x, pos.y, pos.z, 2] = color.r
 		idx = self.index(pos.x, pos.y, pos.z)
-		self.data[idx + 0] = int(color.b * 255)
-		self.data[idx + 1] = int(color.g * 255)
-		self.data[idx + 2] = int(color.r * 255)
+		self.data[idx + 0] = min(255, max(0, int(color.b * 255)))
+		self.data[idx + 1] = min(255, max(0, int(color.g * 255)))
+		self.data[idx + 2] = min(255, max(0, int(color.r * 255)))
 
 
 class AnimationRunner:
