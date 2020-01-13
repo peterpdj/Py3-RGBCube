@@ -55,9 +55,8 @@ class Driver():
 		for x in range(8):
 			for y in range(8):
 				for z in range(8):
-					wholebyte = (x*64)+(y*8)+z
+					wholebyte = (x << 6) + (y << 3) + z
 					whichbyte = wholebyte >> 3
-					#posInByte = wholebyte-(whichbyte << 3)
 					posInByte = wholebyte & 7
 					idx = wholebyte * 3
 					redValue = ((data[idx + 2] + 1) * self.bam_bits) >> 8

@@ -13,7 +13,7 @@ class Frame:
 
 	@staticmethod
 	def index(x, y, z):
-		return (x * 64 + y * 8 + z) * 3
+		return ((x << 6) + (y << 3) + z) * 3
 
 	def set(self, pos, color):
 		idx = self.index(pos.x, pos.y, pos.z)
