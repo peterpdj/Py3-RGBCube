@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 import multiprocessing
 from multiprocessing.sharedctypes import RawArray, RawValue
-import array
 import time
+import numpy
 
 
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
  
+class Frame:
+	def __init__(self):
+		self.data = numpy.zeros((8,8,8,3))
+
+	def set(self, pos, color):
+		self.data[pos.x, pos.y, pos.z, 0] = color.b
+		self.data[pos.x, pos.y, pos.z, 1] = color.g
+		self.data[pos.x, pos.y, pos.z, 2] = color.r
+
 
 class Cube():
 	window = 0
@@ -115,6 +124,9 @@ class Driver():
 		except KeyboardInterrupt:
 			pass
 		quit = 1
+
+	def newFrame(self):
+		return Frame()
 
 	def fill(self, frame):
 		buf = bytearray(self.MEM_SIZE * 3)

@@ -1,10 +1,38 @@
 #!/usr/bin/env python3
 import multiprocessing
 from multiprocessing.sharedctypes import RawArray, RawValue
-import array
 import time
 import spidev
 
+
+class Frame:
+	MEM_SIZE = 3 * 64
+
+	def __init__(self):
+		self.buf = bytearray(self.MEM_SIZE * self.bam_bits)
+		data = frame.data
+
+	def set(self, pos, color):
+		#self.data[pos.x, pos.y, pos.z, 0] = color.b
+		#self.data[pos.x, pos.y, pos.z, 1] = color.g
+		#self.data[pos.x, pos.y, pos.z, 2] = color.r
+		wholebyte = (x << 6) + (y << 3) + z
+		whichbyte = wholebyte >> 3
+		posInByte = wholebyte & 7
+		self._setBits(buf, color.r, color.g, color.b, whichbyte, posInByte)
+
+	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
+		r = int((r + 0.05) * self.bam_bits)
+		r = min(self.bam_bits, max(0, r))
+		g = int((g + 0.05) * self.bam_bits)
+		g = min(self.bam_bits, max(0, g))
+		b = int((b + 0.05) * self.bam_bits)
+		b = min(self.bam_bits, max(0, b))
+		for bb_timeslot in range(self.bam_bits):
+			bam_offset = bb_timeslot * self.MEM_SIZE
+			buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
+			buf[bam_offset + self.GREEN_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, g) << posInByte
+			buf[bam_offset + self.BLUE_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, b) << posInByte
 
 class Driver():
 	MEM_SIZE = 3 * 64
@@ -35,7 +63,6 @@ class Driver():
 					green_i = bam_offset + Driver.GREEN_OFFSET + i
 					blue_i = bam_offset + Driver.BLUE_OFFSET + i
 					spi.xfer(list(buf[red_i:red_i+8]) + list(buf[green_i:green_i+8]) + list(buf[blue_i:blue_i+8]) + list([1 << (i >> 3)]))
-					#time.sleep(0.00001)
 				bb_timeslot = (bb_timeslot + 1) % bam_bits
 				fr += 1
 				if fr == 2000:
@@ -48,19 +75,10 @@ class Driver():
 			quit = 1
 		spi.xfer2([0] * 25)
 
+	def newFrame(self):
+		return Frame()
+
 	def fill(self, frame):
-		buf = bytearray(self.MEM_SIZE * self.bam_bits)
-		data = frame.data
-		for x in range(8):
-			for y in range(8):
-				for z in range(8):
-					wholebyte = (x*64)+(y*8)+z
-					whichbyte = int((wholebyte) >> 3)
-					posInByte = wholebyte-(8*whichbyte)
-					redValue = data[x,y,z,0]
-					greenValue = data[x,y,z,1]
-					blueValue = data[x,y,z,2]
-					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte)
 		self.buf[:] = buf
 
 	def run(self):
@@ -75,19 +93,6 @@ class Driver():
 			self.quit = 1
 			self.sp.join()
 			self.sp = None
-
-	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
-		r = int((r + 0.05) * self.bam_bits)
-		r = min(self.bam_bits, max(0, r))
-		g = int((g + 0.05) * self.bam_bits)
-		g = min(self.bam_bits, max(0, g))
-		b = int((b + 0.05) * self.bam_bits)
-		b = min(self.bam_bits, max(0, b))
-		for bb_timeslot in range(self.bam_bits):
-			bam_offset = bb_timeslot * self.MEM_SIZE
-			buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
-			buf[bam_offset + self.GREEN_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, g) << posInByte
-			buf[bam_offset + self.BLUE_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, b) << posInByte
 
 
 BAM_BITS = {

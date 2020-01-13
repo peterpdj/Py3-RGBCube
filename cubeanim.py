@@ -1,20 +1,10 @@
 #!/usr/bin/env python3
 
 import time
-#import cubedriver
-import virtualdriver
-import numpy
+import cubedriver
+#import virtualdriver
 import math
 
-
-class Frame:
-	def __init__(self):
-		self.data = numpy.zeros((8,8,8,3))
-
-	def set(self, pos, color):
-		self.data[pos.x, pos.y, pos.z, 0] = color.b
-		self.data[pos.x, pos.y, pos.z, 1] = color.g
-		self.data[pos.x, pos.y, pos.z, 2] = color.r
 
 
 class AnimationRunner:
@@ -34,7 +24,7 @@ class AnimationRunner:
 		self.anim.start()
 		while True:
 			t = time.time() - t0
-			frame = Frame()
+			frame = self.driver.newFrame()
 			self.anim.draw(frame, t)
 			self.driver.fill(frame)
 			time.sleep(0.01)
@@ -96,8 +86,8 @@ def runAnimation(anim, bb):
 	This class runs the function 'run' of class Animationrunner. Besides that
 	is uses threading for running the cubedriver in a loop.
 	"""
-	#driver = cubedriver.Driver(bam_bits=bb)
-	driver = virtualdriver.Driver(bam_bits=bb)
+	driver = cubedriver.Driver(bam_bits=bb)
+	#driver = virtualdriver.Driver(bam_bits=bb)
 	driver.run()
 
 	try:
