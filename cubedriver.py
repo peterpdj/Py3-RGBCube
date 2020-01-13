@@ -14,6 +14,7 @@ class Driver():
 
 	def __init__(self, bam_bits):
 		self.bam_bits = bam_bits
+		self.bam_lookup = BAM_BITS[self.bam_bits]
 		self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
 		self.sp = None
 		self.quit = RawValue('B', 0)
@@ -55,8 +56,9 @@ class Driver():
 			for y in range(8):
 				for z in range(8):
 					wholebyte = (x*64)+(y*8)+z
-					whichbyte = int((wholebyte) >> 3)
-					posInByte = wholebyte-(8*whichbyte)
+					whichbyte = wholebyte >> 3
+					#posInByte = wholebyte-(whichbyte << 3)
+					posInByte = wholebyte & 7
 					idx = wholebyte * 3
 					redValue = ((data[idx + 2] + 1) * self.bam_bits) >> 8
 					greenValue = ((data[idx + 1] + 1) * self.bam_bits) >> 8
@@ -78,18 +80,15 @@ class Driver():
 			self.sp = None
 
 	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
-		if False:
-			r = int((r + 0.05) * self.bam_bits)
-			r = min(self.bam_bits, max(0, r))
-			g = int((g + 0.05) * self.bam_bits)
-			g = min(self.bam_bits, max(0, g))
-			b = int((b + 0.05) * self.bam_bits)
-			b = min(self.bam_bits, max(0, b))
 		for bb_timeslot in range(self.bam_bits):
 			bam_offset = bb_timeslot * self.MEM_SIZE
-			buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
-			buf[bam_offset + self.GREEN_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, g) << posInByte
-			buf[bam_offset + self.BLUE_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, b) << posInByte
+			byte_offset = bam_offset + whichbyte
+			buf[byte_offset + self.RED_OFFSET] |= self._get_bam_value(bb_timeslot, r) << posInByte
+			buf[byte_offset + self.GREEN_OFFSET] |= self._get_bam_value(bb_timeslot, g) << posInByte
+			buf[byte_offset + self.BLUE_OFFSET] |= self._get_bam_value(bb_timeslot, b) << posInByte
+
+	def _get_bam_value(self, timeslot, val):
+		return self.bam_lookup[val][timeslot]
 
 
 BAM_BITS = {
@@ -117,7 +116,4 @@ BAM_BITS = {
         (1, 1, 1, 1, 1, 1, 1, 1),
     )
 }
-
-def get_bam_value(bam_bits, timeslot, val):
-    return BAM_BITS[bam_bits][val][timeslot]
 
