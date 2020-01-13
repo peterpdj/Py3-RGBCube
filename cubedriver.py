@@ -30,10 +30,12 @@ class Driver():
 		spi.max_speed_hz = 8000000
 		bb_timeslot = 0
 		try:
+			buf = bytearray(self.MEM_SIZE * bam_bits)
+			slice_versions = bytearray(8)
 			while not quit:
 				bam_offset = bb_timeslot * self.MEM_SIZE
-				buf = self._fill_buf(shared_buf, bam_bits)
 				for i in range(0, 64, 8):
+					self._fill_buf(i >> 3, shared_buf, buf, bam_bits)
 					red_i = bam_offset + Driver.RED_OFFSET + i
 					green_i = bam_offset + Driver.GREEN_OFFSET + i
 					blue_i = bam_offset + Driver.BLUE_OFFSET + i
@@ -54,9 +56,10 @@ class Driver():
 		self.buf[:] = frame.data
 
 	@classmethod
-	def _fill_buf(self, data, bam_bits):
-		buf = bytearray(self.MEM_SIZE * bam_bits)
-		for x in range(8):
+	def _fill_buf(self, slice_nr, data, dest_buf, bam_bits):
+		#for x in range(8):
+		if True:
+			x = slice_nr
 			for y in range(8):
 				for z in range(8):
 					wholebyte = (x << 6) + (y << 3) + z
@@ -66,8 +69,7 @@ class Driver():
 					redValue = ((data[idx + 2] + 1) * bam_bits) >> 8
 					greenValue = ((data[idx + 1] + 1) * bam_bits) >> 8
 					blueValue = ((data[idx + 0] + 1) * bam_bits) >> 8
-					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte, bam_bits)
-		return buf
+					self._setBits(dest_buf, redValue, greenValue, blueValue, whichbyte, posInByte, bam_bits)
 
 	def run(self):
 		if self.sp is None:
