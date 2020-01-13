@@ -54,7 +54,7 @@ class Driver():
 		self.buf[:] = frame.data
 
 	@classmethod
-	def _fill_buf(data):
+	def _fill_buf(self, data):
 		buf = bytearray(3 * 64 * self.bam_bits)
 		for x in range(8):
 			for y in range(8):
@@ -82,6 +82,7 @@ class Driver():
 			self.sp.join()
 			self.sp = None
 
+	@classmethod
 	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
 		for bb_timeslot in range(self.bam_bits):
 			bam_offset = bb_timeslot * self.MEM_SIZE
@@ -90,6 +91,7 @@ class Driver():
 			buf[byte_offset + self.GREEN_OFFSET] |= self._get_bam_value(bb_timeslot, g) << posInByte
 			buf[byte_offset + self.BLUE_OFFSET] |= self._get_bam_value(bb_timeslot, b) << posInByte
 
+	@classmethod
 	def _get_bam_value(self, timeslot, val):
 		return self.bam_lookup[val][timeslot]
 
