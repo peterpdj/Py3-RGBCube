@@ -7,10 +7,12 @@ import spidev
 
 class Frame:
 	MEM_SIZE = 3 * 64
+	RED_OFFSET = 0
+	GREEN_OFFSET = 64
+	BLUE_OFFSET = 128
 
 	def __init__(self):
 		self.buf = bytearray(self.MEM_SIZE * self.bam_bits)
-		data = frame.data
 
 	def set(self, pos, color):
 		#self.data[pos.x, pos.y, pos.z, 0] = color.b
@@ -19,9 +21,9 @@ class Frame:
 		wholebyte = (x << 6) + (y << 3) + z
 		whichbyte = wholebyte >> 3
 		posInByte = wholebyte & 7
-		self._setBits(buf, color.r, color.g, color.b, whichbyte, posInByte)
+		self._setBits(color.r, color.g, color.b, whichbyte, posInByte)
 
-	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
+	def _setBits(self, r, g, b, whichbyte, posInByte):
 		r = int((r + 0.05) * self.bam_bits)
 		r = min(self.bam_bits, max(0, r))
 		g = int((g + 0.05) * self.bam_bits)
@@ -30,9 +32,9 @@ class Frame:
 		b = min(self.bam_bits, max(0, b))
 		for bb_timeslot in range(self.bam_bits):
 			bam_offset = bb_timeslot * self.MEM_SIZE
-			buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
-			buf[bam_offset + self.GREEN_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, g) << posInByte
-			buf[bam_offset + self.BLUE_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, b) << posInByte
+			self.buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
+			self.buf[bam_offset + self.GREEN_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, g) << posInByte
+			self.buf[bam_offset + self.BLUE_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, b) << posInByte
 
 class Driver():
 	MEM_SIZE = 3 * 64
@@ -79,7 +81,7 @@ class Driver():
 		return Frame()
 
 	def fill(self, frame):
-		self.buf[:] = buf
+		self.buf[:] = frame.buf
 
 	def run(self):
 		if self.sp is None:
