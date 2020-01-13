@@ -14,7 +14,6 @@ class Driver():
 
 	def __init__(self, bam_bits):
 		self.bam_bits = bam_bits
-		self.bam_lookup = BAM_BITS[self.bam_bits]
 		#self.buf = RawArray('B', Driver.MEM_SIZE * bam_bits)
 		self.buf = RawArray('B', Driver.MEM_SIZE)
 		self.sp = None
@@ -32,7 +31,7 @@ class Driver():
 		try:
 			while not quit:
 				bam_offset = bb_timeslot * self.MEM_SIZE
-				buf = self._fill_buf(shared_buf)
+				buf = self._fill_buf(shared_buf, bam_bits)
 				for i in range(0, 64, 8):
 					red_i = bam_offset + Driver.RED_OFFSET + i
 					green_i = bam_offset + Driver.GREEN_OFFSET + i
@@ -54,8 +53,8 @@ class Driver():
 		self.buf[:] = frame.data
 
 	@classmethod
-	def _fill_buf(self, data):
-		buf = bytearray(3 * 64 * self.bam_bits)
+	def _fill_buf(self, data, bam_bits):
+		buf = bytearray(3 * 64 * bam_bits)
 		for x in range(8):
 			for y in range(8):
 				for z in range(8):
@@ -63,10 +62,10 @@ class Driver():
 					whichbyte = wholebyte >> 3
 					posInByte = wholebyte & 7
 					idx = wholebyte * 3
-					redValue = ((data[idx + 2] + 1) * self.bam_bits) >> 8
-					greenValue = ((data[idx + 1] + 1) * self.bam_bits) >> 8
-					blueValue = ((data[idx + 0] + 1) * self.bam_bits) >> 8
-					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte)
+					redValue = ((data[idx + 2] + 1) * bam_bits) >> 8
+					greenValue = ((data[idx + 1] + 1) * bam_bits) >> 8
+					blueValue = ((data[idx + 0] + 1) * bam_bits) >> 8
+					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte, bam_bits)
 		return buf
 
 	def run(self):
@@ -83,17 +82,18 @@ class Driver():
 			self.sp = None
 
 	@classmethod
-	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
-		for bb_timeslot in range(self.bam_bits):
+	def _setBits(self, buf, r, g, b, whichbyte, posInByte, bam_bits):
+		bam_lookup = BAM_BITS[bam_bits]
+		for bb_timeslot in range(bam_bits):
 			bam_offset = bb_timeslot * self.MEM_SIZE
 			byte_offset = bam_offset + whichbyte
-			buf[byte_offset + self.RED_OFFSET] |= self._get_bam_value(bb_timeslot, r) << posInByte
-			buf[byte_offset + self.GREEN_OFFSET] |= self._get_bam_value(bb_timeslot, g) << posInByte
-			buf[byte_offset + self.BLUE_OFFSET] |= self._get_bam_value(bb_timeslot, b) << posInByte
+			buf[byte_offset + self.RED_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, r) << posInByte
+			buf[byte_offset + self.GREEN_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, g) << posInByte
+			buf[byte_offset + self.BLUE_OFFSET] |= self._get_bam_value(bam_lookup, bb_timeslot, b) << posInByte
 
 	@classmethod
-	def _get_bam_value(self, timeslot, val):
-		return self.bam_lookup[val][timeslot]
+	def _get_bam_value(self, bam_lookup, timeslot, val):
+		return bam_lookup[val][timeslot]
 
 
 BAM_BITS = {
