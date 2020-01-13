@@ -11,14 +11,12 @@ class Frame:
 	GREEN_OFFSET = 64
 	BLUE_OFFSET = 128
 
-	def __init__(self):
+	def __init__(self, bam_bits):
+		self.bam_bits = bam_bits
 		self.buf = bytearray(self.MEM_SIZE * self.bam_bits)
 
 	def set(self, pos, color):
-		#self.data[pos.x, pos.y, pos.z, 0] = color.b
-		#self.data[pos.x, pos.y, pos.z, 1] = color.g
-		#self.data[pos.x, pos.y, pos.z, 2] = color.r
-		wholebyte = (x << 6) + (y << 3) + z
+		wholebyte = (pos.x << 6) + (pos.y << 3) + pos.z
 		whichbyte = wholebyte >> 3
 		posInByte = wholebyte & 7
 		self._setBits(color.r, color.g, color.b, whichbyte, posInByte)
@@ -78,7 +76,7 @@ class Driver():
 		spi.xfer2([0] * 25)
 
 	def newFrame(self):
-		return Frame()
+		return Frame(self.bam_bits)
 
 	def fill(self, frame):
 		self.buf[:] = frame.buf
