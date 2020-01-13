@@ -11,7 +11,7 @@ class RgbCubeAnimation(cubeanim.Animation):
 	def draw(self, buf, t):
 		pos = Position()
 		ROTATION_TIME = 8.0
-		rot = t * (2 * 3.141592653 / ROTATION_TIME)
+		rot = 0 # t * (2 * 3.141592653 / ROTATION_TIME)
 		center = Position(3.5, 3.5, 3.5)
 		for x in range(8):
 			pos.x = x
@@ -29,5 +29,5 @@ class RgbCubeAnimation(cubeanim.Animation):
 
 if __name__ == '__main__':
 	anim = RgbCubeAnimation()
-	cubeanim.runAnimation(anim,bb=8)
+	cubeanim.runAnimation(anim,bb=4)
 
