@@ -56,7 +56,7 @@ class Cube():
 					g = self.buf[Driver.GREEN_OFFSET + x*8*8 + y*8 + z]
 					b = self.buf[Driver.BLUE_OFFSET + x*8*8 + y*8 + z]
 					glColor3f(r / 255.0, g / 255.0, b / 255.0)
-					glutSolidSphere(0.15, 8, 8)
+					glutSolidSphere(0.10, 8, 8)
 					glPopMatrix()
 	 
 		glutSwapBuffers()
