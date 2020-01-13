@@ -57,9 +57,10 @@ class Driver():
 					wholebyte = (x*64)+(y*8)+z
 					whichbyte = int((wholebyte) >> 3)
 					posInByte = wholebyte-(8*whichbyte)
-					redValue = data[x,y,z,0]
-					greenValue = data[x,y,z,1]
-					blueValue = data[x,y,z,2]
+					idx = 64 * x + 8 * y + z
+					redValue = data[idx + 0] >> (8 - self.bam_bits)
+					greenValue = data[idx + 1] >> (8 - self.bam_bits)
+					blueValue = data[idx + 2] >> (8 - self.bam_bits)
 					self._setBits(buf, redValue, greenValue, blueValue, whichbyte, posInByte)
 		self.buf[:] = buf
 
@@ -77,12 +78,13 @@ class Driver():
 			self.sp = None
 
 	def _setBits(self, buf, r, g, b, whichbyte, posInByte):
-		r = int((r + 0.05) * self.bam_bits)
-		r = min(self.bam_bits, max(0, r))
-		g = int((g + 0.05) * self.bam_bits)
-		g = min(self.bam_bits, max(0, g))
-		b = int((b + 0.05) * self.bam_bits)
-		b = min(self.bam_bits, max(0, b))
+		if False:
+			r = int((r + 0.05) * self.bam_bits)
+			r = min(self.bam_bits, max(0, r))
+			g = int((g + 0.05) * self.bam_bits)
+			g = min(self.bam_bits, max(0, g))
+			b = int((b + 0.05) * self.bam_bits)
+			b = min(self.bam_bits, max(0, b))
 		for bb_timeslot in range(self.bam_bits):
 			bam_offset = bb_timeslot * self.MEM_SIZE
 			buf[bam_offset + self.RED_OFFSET + whichbyte] |= get_bam_value(self.bam_bits, bb_timeslot, r) << posInByte
