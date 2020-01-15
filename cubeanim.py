@@ -27,7 +27,7 @@ class AnimationRunner:
 			frame = self.driver.newFrame()
 			self.anim.draw(frame, t)
 			self.driver.fill(frame)
-			time.sleep(0.01)
+			time.sleep(0.001)
 			f += 1
 			if f == 100:
 				fps = f / (t - tf0)
