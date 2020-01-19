@@ -18,7 +18,7 @@ def generate_color():
     c1 = random.random()
     c2 = random.random()
     c3 = max(0, 1 - c1 - c2)
-    cs = [c1 * 500, c2 * 500, c3 * 500]
+    cs = [c1 * 1200 + 1, c2 * 1200 + 1, c3 * 1200 + 1]
     random.shuffle(cs)
     return tuple(cs)
 
@@ -34,14 +34,14 @@ def weighted_avg(nrs):
 
 
 def dissolve(lake, x, y, dt):
-    DISSOLVE_TIME = 0.9
+    DISSOLVE_TIME = 0.6
     dissolve_step = min(1, dt / DISSOLVE_TIME)
     return tuple(map(
         sum, 
-        zip(*[
+        zip(
             map(lambda ce: ce * dissolve_step, map(weighted_avg, zip(*[c for cc in lake[x-1:x+2] for c in cc[y-1:y+2]]))),
             map(lambda ce: ce * (1 - dissolve_step), lake[x][y])
-        ])
+        )
     ))
 
 
@@ -56,12 +56,13 @@ class DropsAnimation(cubeanim.Animation):
         dt = t - self.prev_t
         self.prev_t = t
         if t > self.next_drop_t:
-            self.next_drop_t = t + 0.1 + random.random() * 3
+            print(self.lake)
+            self.next_drop_t = t + 0.1 + random.random() * 1.4
             drop = {
                     "height": 8,
                     "x": math.floor(random.random() * 8),
                     "y": math.floor(random.random() * 8),
-                    "speed": 2 + random.random() * 5,
+                    "speed": 5 + random.random() * 3,
                     "color": generate_color()
             }
             for r in range(math.floor(random.random() * 5)):
@@ -76,6 +77,7 @@ class DropsAnimation(cubeanim.Animation):
                 drop["height"] = 0
                 drops_to_remove.append(drop_index)
                 self.lake[drop["x"] + 1][drop["y"] + 1] = drop["color"]
+                # self.lake[drop["x"] + 1][drop["y"] + 1] = tuple(map(sum, zip(drop["color"], self.lake[drop["x"] + 1][drop["y"] + 1])))
             elif drop["height"] < 8:
                 buf.set(Position(math.floor(drop["height"]), math.floor(drop["x"]), math.floor(drop["y"])), Color(*normalize_color(drop["color"])))
 
@@ -88,9 +90,12 @@ class DropsAnimation(cubeanim.Animation):
                 buf.set(Position(0, lx, ly), Color(*normalize_color(self.lake[lx + 1][ly + 1])))
 
         # Dissolve lake:
+        oldLake = self.lake
+        self.lake = [[(1, 1, 1) for x in range(10)] for y in range(10)]
         for lx in range(1, 9):
             for ly in range(1, 9):
-                self.lake[lx][ly] = dissolve(self.lake, lx, ly, dt)
+                newValue = dissolve(oldLake, lx, ly, dt)
+                self.lake[lx][ly] = tuple(map(lambda ce: ce / min(newValue), newValue))
 
 
 if __name__ == '__main__':
